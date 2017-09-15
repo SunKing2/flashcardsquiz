@@ -130,14 +130,14 @@ def DoListStats():
     #print report
     seen = solved + unsolved;
     printf ("Total: %d\n", unseen + seen)
-    if (unseen): printf ("Unseen: %d (%d%%)\n", unseen, 0.5 + 100 * (unseen / (seen + unseen)))
+    if (unseen): printf ("Unseen: %d (%d%%)\n", unseen, 0.5 + 100.0 * (1.0 * unseen / (seen + unseen)))
     sys.stdout.write ("Solved: " + str(solved))
-    if (seen): printf (" (%d%%)", 0.5 + 100 * solved / seen),
+    if (seen): printf (" (%d%%)", 0.5 + 100.0 * solved / seen),
     sys.stdout.write  ("\nUnsolved: " + str(unsolved))
-    if (seen): printf (" (%d%%)", 0.5 + 100 * unsolved / seen),
+    if (seen): printf (" (%d%%)", 0.5 + 100.0 * unsolved / seen),
     print ("");
     if (solved): printf ("Mean solution time: %.1f s\n", 1.0 * totalRating / solved)
-    if (unsolved or unseen): printf ("Mean difficulty: %.1f s\n", (100 * (unsolved + unseen) + totalRating) / (seen + unseen))
+    if (unsolved or unseen): printf ("Mean difficulty: %.1f s\n", (100.0 * (unsolved + unseen) + totalRating) / (seen + unseen))
     if (count): print ("Mean solution age: " +
         FormatTime(int(now - 1.0 * age_sum / count)) + "\n"),
     t = 0 
@@ -274,6 +274,38 @@ Solved: 0
 Unsolved: 0
 Mean difficulty: 100.0 s
 Mean solution age: 17424 d
+Oldest solution: never
+''')
+        self.ensureInputDataMakesStats(inputData, expectedStats)
+    
+
+    def test_EnsureInputDataMakesStats_old_and_new_questions(self):
+        inputData = '''AKNPR\tPRANK\t29\t1505481030\tCO\t
+IOPTT\tPITOT\t100\t0\tCO\t
+AAEPR\tAREPA PARAE\t68\t1505423280\tCO\t
+BOOWX\tOXBOW\t29\t1505409667\tCO\t
+BOTUY\tOUTBY\t68\t1505482847\tCO\t
+ALNOY\tONLAY\t68\t1505481126\tCO\t
+BEEOS\tOBESE\t68\t1505482851\tCO\t
+AHIKN\tNIKAH\t100\t0\tCO\t
+EMOPY\tMOPEY MYOPE\t100\t0\tCO\t
+HIMRT\tMIRTH\t100\t0\tCO\t
+CEELY\tLYCEE\t29\t1505481155\tCO\t
+AEELV\tLEAVE\t+100\t0\tCO\t
+AALNU\tLAUAN\t+100\t0\tCO\t
+'''
+        expectedStats = ('''
+You answered 0 questions correctly of 0.
+Elapsed time: 0:00:00
+
+Current statistics for this question set:
+Total: 13
+Unseen: 2 (15%)
+Solved: 7 (64%)
+Unsolved: 4 (36%)
+Mean solution time: 51.3 s
+Mean difficulty: 73.8 s
+Mean solution age: 8042 d
 Oldest solution: never
 ''')
         self.ensureInputDataMakesStats(inputData, expectedStats)
