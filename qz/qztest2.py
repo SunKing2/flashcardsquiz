@@ -155,120 +155,24 @@ def DoListStats():
 #DoListStats
 
 
+# ============================= stuff needed for test =======================
+class MyOutput(object):
+    def __init__(self):
+        self.data = []
+
+    def write(self, s):
+        self.data.append(s)
+
+    def __str__(self):
+        return "".join(self.data)
+ 
+
 # ============================= test =======================
 import unittest
 class Test(unittest.TestCase):
-    
-    def test_makeInputFileForQz(self):
-        mydata = '''AQT\tQAT\t1\t1505179232\tC\t
-IQS\tQIS\t50\t1505179230\tC\t
-'''
-        open('mystuff.qz', 'w').write(mydata)
 
-    def test_readData(self):
-        expected = "IQS"
-        DoRunQuiz([])
-        self.assertEquals(expected, gQData[6])
-        self.assertEquals("1505179230", gQData[9])
-    
-    def test_S(self):
-        class MyOutput(object):
-            def __init__(self):
-                self.data = []
- 
-            def write(self, s):
-                self.data.append(s)
- 
-            def __str__(self):
-                return "".join(self.data)
- 
-        stdout_org = sys.stdout
-        my_stdout = MyOutput()
-        try:
-            sys.stdout = my_stdout
-            S()
-        finally:
-            sys.stdout = stdout_org
-        expected = ('''\nYou answered 0 questions correctly of 0.
-Elapsed time: 0:00:00
-
-Current statistics for this question set:\n''')
- 
-        self.assertEquals( expected, str(my_stdout)) 
-
-    def test_DoListStats(self):
-        class MyOutput(object):
-            def __init__(self):
-                self.data = []
- 
-            def write(self, s):
-                self.data.append(s)
- 
-            def __str__(self):
-                return "".join(self.data)
- 
-        stdout_org = sys.stdout
-        my_stdout = MyOutput()
-        try:
-            sys.stdout = my_stdout
-            DoListStats()
-        finally:
-            sys.stdout = stdout_org
-        expected = ('''Total: 0
-Solved: 0
-Unsolved: 0
-Oldest solution: never
-''')
- 
-        self.assertEquals( expected, str(my_stdout)) 
-
-
-    def test_DoListStatsLoadData(self):
-        class MyOutput(object):
-            def __init__(self):
-                self.data = []
- 
-            def write(self, s):
-                self.data.append(s)
- 
-            def __str__(self):
-                return "".join(self.data)
- 
-        stdout_org = sys.stdout
-        my_stdout = MyOutput()
-        try:
-            sys.stdout = my_stdout
-            LoadData(glob.glob('*.qz'))
-            S()
-            DoListStats()
-        finally:
-            sys.stdout = stdout_org
-        expected = ('''
-You answered 0 questions correctly of 0.
-Elapsed time: 0:00:00
-
-Current statistics for this question set:
-Total: 2
-Solved: 2 (100%)
-Unsolved: 0 (0%)
-Mean solution time: 25.5 s
-Mean solution age: 3 d
-Oldest solution: never
-''')
-        self.assertEquals( expected, str(my_stdout)) 
-
-    
+# ------------------------start helper methods only -------------------
     def ensureInputDataMakesStats(self, inputData, stats):
-        class MyOutput(object):
-            def __init__(self):
-                self.data = []
- 
-            def write(self, s):
-                self.data.append(s)
- 
-            def __str__(self):
-                return "".join(self.data)
- 
         stdout_org = sys.stdout
         my_stdout = MyOutput()
         try:
@@ -284,6 +188,55 @@ Oldest solution: never
         finally:
             sys.stdout = stdout_org
         expected = stats
+        self.assertEquals( expected, str(my_stdout)) 
+# ------------------------end helper methods only -------------------
+
+
+    
+    def test_makeInputFileForQz(self):
+        mydata = '''AQT\tQAT\t1\t1505179232\tC\t
+IQS\tQIS\t50\t1505179230\tC\t
+'''
+        open('mystuff.qz', 'w').write(mydata)
+
+
+    def test_readData(self):
+        expected = "IQS"
+        DoRunQuiz([])
+        self.assertEquals(expected, gQData[6])
+        self.assertEquals("1505179230", gQData[9])
+    
+    
+    def test_S(self):
+        stdout_org = sys.stdout
+        my_stdout = MyOutput()
+        try:
+            sys.stdout = my_stdout
+            S()
+        finally:
+            sys.stdout = stdout_org
+        expected = ('''\nYou answered 0 questions correctly of 0.
+Elapsed time: 0:00:00
+
+Current statistics for this question set:\n''')
+ 
+        self.assertEquals( expected, str(my_stdout)) 
+
+
+    def test_DoListStats(self):
+        stdout_org = sys.stdout
+        my_stdout = MyOutput()
+        try:
+            sys.stdout = my_stdout
+            DoListStats()
+        finally:
+            sys.stdout = stdout_org
+        expected = ('''Total: 0
+Solved: 0
+Unsolved: 0
+Oldest solution: never
+''')
+ 
         self.assertEquals( expected, str(my_stdout)) 
 
 
