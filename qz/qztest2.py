@@ -74,7 +74,7 @@ def DoListStats():
             count += 1
             sRating = gQData[qIndex]
             rating = int(sRating)
-            if (re.match("^\+", sRating)):
+            if (re.match(r"^\+", sRating)):
                 unseen +=1
             elif(rating == configMax_rating):
                 unsolved += 1
@@ -84,18 +84,18 @@ def DoListStats():
             qIndex += kFields
 
     #print report
-    seen = solved + unsolved;
+    seen = solved + unsolved
     printf ("Total: %d\n", unseen + seen)
     if (unseen): printf ("Unseen: %d (%d%%)\n", unseen, 0.5 + 100.0 * (1.0 * unseen / (seen + unseen)))
     sys.stdout.write ("Solved: " + str(solved))
-    if (seen): printf (" (%d%%)", 0.5 + 100.0 * solved / seen),
+    if (seen): printf (" (%d%%)", 0.5 + 100.0 * solved / seen)
     sys.stdout.write  ("\nUnsolved: " + str(unsolved))
-    if (seen): printf (" (%d%%)", 0.5 + 100.0 * unsolved / seen),
-    print ("");
+    if (seen): printf (" (%d%%)", 0.5 + 100.0 * unsolved / seen)
+    print ("")
     if (solved): printf ("Mean solution time: %.1f s\n", 1.0 * totalRating / solved)
     if (unsolved or unseen): printf ("Mean difficulty: %.1f s\n", (100.0 * (unsolved + unseen) + totalRating) / (seen + unseen))
     if (count): print ("Mean solution age: " +
-        FormatTime(int(now - 1.0 * age_sum / count)) + "\n"),
+        FormatTime(int(now - 1.0 * age_sum / count)))
     t = 0 
     if (True):
         i = 0
@@ -107,7 +107,7 @@ def DoListStats():
             #next unless & $config::question_filter($gQData[$qIndex + $offsetq]) && & $config::answer_filter($gQData[$qIndex + $offseta]);
             t = gQData[qIndex]
             #last
-    print ("Oldest solution: " + (FormatTime(now - t) if t else 'never') + "\n"),
+    print ("Oldest solution: " + (FormatTime(now - t) if t else 'never'))
 #DoListStats
 
 def DoRunQuiz(argv):
@@ -141,8 +141,9 @@ def LoadData(files):
 
 def S():
     printf ("\nYou answered %d question%s correctly of %d",\
-    gQCorrect, '' if (gQCorrect == 1) else 's', promptQord),
-    if promptQord: printf (" (%.1f%%)", 100 * gQCorrect/promptQord, end="")
+    gQCorrect, '' if (gQCorrect == 1) else 's', promptQord)
+    #if promptQord: printf (" (%.1f%%)", 100 * gQCorrect/promptQord, end="")
+    if promptQord: printf (" (%.1f%%)", 100 * gQCorrect/promptQord)
     print (".")
     if gQCorrect: printf ("You took on average %.1f seconds to answer correctly.",
     gTotalTime/gQCorrect)
@@ -252,7 +253,7 @@ Total: 2
 Solved: 2 (100%)
 Unsolved: 0 (0%)
 Mean solution time: 25.5 s
-Mean solution age: 3 d
+Mean solution age: 4 d
 Oldest solution: never
 ''')
         self.ensureInputDataMakesStats(inputData, expectedStats)
