@@ -46,55 +46,11 @@ global gQByAge
 gQByAge = []
 
 
-# begin lvb created procedures
+# ============================= begin lvb created procedures =======================
 def printf(sformat, *args):
     sys.stdout.write(sformat % args)
-# end lvb created procedures
+# ============================= end   lvb created procedures =======================
 
-
-def DoRunQuiz(argv):
-    gSessionStart = time.time()
-    if not argv: argv = glob.glob('*.qz')
-    LoadData(argv)
-
-def LoadData(files):
-    gQCount = 0
-    for ffile in files:
-        fileQCount = 0
-        with open(ffile, 'r') as infile:
-            for line in infile.read().splitlines():
-                fields = line.split('\t')
-                if not fields: continue
-                gQData.extend(fields)
-                gQCount += 1
-                fileQCount += 1
-        gFileNum_Dirty.append(0)
-        gFileNum_FileName.append(ffile)
-        gFileNum_QuestionCount.append(fileQCount)
-
-
-def S():
-    printf ("\nYou answered %d question%s correctly of %d",\
-    gQCorrect, '' if (gQCorrect == 1) else 's', promptQord),
-    if promptQord: printf (" (%.1f%%)", 100 * gQCorrect/promptQord, end="")
-    print (".")
-    if gQCorrect: printf ("You took on average %.1f seconds to answer correctly.",
-    gTotalTime/gQCorrect)
-    if promptQord and gQCorrect/promptQord > 0.9: print ("Congratulations!") 
-    elapsed = time.time() - gSessionStart
-    printf ("Elapsed time: %d:%02d:%02d\n", 
-    int(elapsed/3600), int(elapsed/60) % 60, elapsed % 60)
-    print ("\nCurrent statistics for this question set:")
-    #DoListStats()
-
-def FormatTime(interval):
-    if (interval < 60) : return str(interval) + " s"
-    interval = int(interval/60)
-    if (interval < 60) : return str(interval) + " m"
-    interval = int(interval/60)
-    if (interval < 24) : return str(interval) + " h"
-    interval = int(interval/24)
-    return str(interval) + " d"
 
 # DoListStats - list file stats
 def DoListStats():
@@ -153,6 +109,49 @@ def DoListStats():
             #last
     print ("Oldest solution: " + (FormatTime(now - t) if t else 'never') + "\n"),
 #DoListStats
+
+def DoRunQuiz(argv):
+    gSessionStart = time.time()
+    if not argv: argv = glob.glob('*.qz')
+    LoadData(argv)
+
+def FormatTime(interval):
+    if (interval < 60) : return str(interval) + " s"
+    interval = int(interval/60)
+    if (interval < 60) : return str(interval) + " m"
+    interval = int(interval/60)
+    if (interval < 24) : return str(interval) + " h"
+    interval = int(interval/24)
+    return str(interval) + " d"
+
+def LoadData(files):
+    gQCount = 0
+    for ffile in files:
+        fileQCount = 0
+        with open(ffile, 'r') as infile:
+            for line in infile.read().splitlines():
+                fields = line.split('\t')
+                if not fields: continue
+                gQData.extend(fields)
+                gQCount += 1
+                fileQCount += 1
+        gFileNum_Dirty.append(0)
+        gFileNum_FileName.append(ffile)
+        gFileNum_QuestionCount.append(fileQCount)
+
+def S():
+    printf ("\nYou answered %d question%s correctly of %d",\
+    gQCorrect, '' if (gQCorrect == 1) else 's', promptQord),
+    if promptQord: printf (" (%.1f%%)", 100 * gQCorrect/promptQord, end="")
+    print (".")
+    if gQCorrect: printf ("You took on average %.1f seconds to answer correctly.",
+    gTotalTime/gQCorrect)
+    if promptQord and gQCorrect/promptQord > 0.9: print ("Congratulations!") 
+    elapsed = time.time() - gSessionStart
+    printf ("Elapsed time: %d:%02d:%02d\n", 
+    int(elapsed/3600), int(elapsed/60) % 60, elapsed % 60)
+    print ("\nCurrent statistics for this question set:")
+    #DoListStats()
 
 
 # ============================= stuff needed for test =======================
@@ -273,7 +272,7 @@ Unseen: 3 (100%)
 Solved: 0
 Unsolved: 0
 Mean difficulty: 100.0 s
-Mean solution age: 17424 d
+Mean solution age: 17425 d
 Oldest solution: never
 ''')
         self.ensureInputDataMakesStats(inputData, expectedStats)
