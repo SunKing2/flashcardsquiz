@@ -1,0 +1,6 @@
+#!/bin/sh
+while inotifywait -qq -e close_write .; do
+    sleep 0.3
+    echo  "python3 tmp.py"
+    python3 tmp.py
+done
