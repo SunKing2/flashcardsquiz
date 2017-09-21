@@ -2,6 +2,7 @@ import time
 import glob
 import sys
 import re
+import random
 from os import rename
 from qz import config
 from qz import g
@@ -102,6 +103,70 @@ def LoadData(files):
         g.gFileNum_FileName.append(ffile)
         g.gFileNum_QuestionCount.append(fileQCount)
 
+# MungeData - precalculate information useful for running a quiz
+def MungeData ():
+
+    # round g.gQCount up to a power of two
+    g.gQCount2 = 1
+    while(g.gQCount2 < g.gQCount):
+        g.gQCount2 <<= 1
+
+    # calculate rating information
+    g.gQByRating = [''] * (config.max_rating + 2)
+
+    g.gTotalRating = 0
+    def fun_loop():
+        q = 0
+        qIndex = k.fRating
+        while (q<g.gQCount): # a fun loop
+            rating = g.gQData[qIndex]
+            print(q)
+            g.gRatingTree.append(rating)
+            g.gTotalRating += int(g.gRatingTree[q])
+            g.gQByRating[int(rating)] += "%d " % q
+            if not (q % 2):
+                q += 1
+                continue
+            t1 = q-1
+            g.gRatingTree[q] += g.gRatingTree[t1]
+            t2 = 1
+            t3 = q & (1 + q)
+
+            t1 -= t2
+            while t1 > t3:
+                t2 += t2
+                g.gRatingTree[q] += g.gRatingTree[t1]
+                t1-=t2
+            q += 1
+            qIndex += k.fields
+    fun_loop()
+
+    # ($u1,$s1) = times printf "time: %5.2f %5.2f\n", $u1-$u0, $s1-$s0 # DEBUG
+
+    # build chronological list
+    def build_chronological_list():
+        g.gQByAge = [0] * g.gQCount
+        q = g.gQCount
+        qIndex = q * k.fields + k.fAge
+        while (q > 0):
+            q -=1
+            qIndex -= k.fields
+            print('q=' + str(q))
+            g.gQByAge[q] = qIndex
+    build_chronological_list()
+
+    # perl 5.10.0 segfaults if the following line is in the preceding block.
+    # if placed here, it silently fails when returning from MungeData.
+    # @gQByAge = sort { $gQData[$a] <=> $gQData[$b] || int(rand(3))-1; } @gQByAge;
+    # TODO translate this properly, no shortcuts!
+    g.gQByAge.sort(key=lambda x: int(g.gQData[x]) + random.random())
+  
+    for q1 in g.gQByAge:
+        q1 = int(q1/k.fields)
+
+    # build last-asked list
+    g.gWhenAsked = [-config.mri] * g.gQCount
+
 def S():
     printf("\nYou answered %d question%s correctly of %d",\
     g.gQCorrect, '' if (g.gQCorrect == 1) else 's', prompt.qord)
@@ -167,6 +232,8 @@ class MyOutput(object):
 
 # ============================= test =======================
 import unittest
+import shutil
+
 class Test(unittest.TestCase):
 
 # ------------------------start helper methods only -------------------
@@ -179,7 +246,9 @@ class Test(unittest.TestCase):
             sys.stdout = my_stdout
 
             # create outputfile which will be read into qz
-            open('mystuff.qz', 'w').write(inputData)
+            f = open('mystuff.qz', 'w')
+            f.write(inputData)
+            f.close()
             LoadData(glob.glob('*.qz'))
             S()
             DoListStats()
@@ -200,7 +269,12 @@ class Test(unittest.TestCase):
         g.gQCorrect = 0
         g.gTotalTime = 0
         
-        g.gQByAge = []        
+        g.gQByAge = []
+        
+        # added after save working
+        g.gQCount2 = 0
+        g.gQByRating = []
+        g.gRatingTree = [] 
 
     def ensureReadData(self, expected_time="1505179230"):
         expected = "IQS"
@@ -219,7 +293,12 @@ class Test(unittest.TestCase):
         mydata = '''AQT\tQAT\t1\t1505179232\tC\t
 IQS\tQIS\t50\t1505179230\tC\t
 '''
-        open('mystuff.qz', 'w').write(mydata)
+        f = open('mystuff.qz', 'w')
+        f.write(mydata)
+        f.close()
+    
+    def setUp(self):
+        self.ginitialize()
         
 
 # ------------------------end before test methods only -------------------
@@ -270,7 +349,7 @@ Total: 2
 Solved: 2 (100%)
 Unsolved: 0 (0%)
 Mean solution time: 25.5 s
-Mean solution age: 8 d
+Mean solution age: 9 d
 Oldest solution: never
 ''')
         self.ensureInputDataMakesStats(inputData, expectedStats)
@@ -290,7 +369,7 @@ Unseen: 3 (100%)
 Solved: 0
 Unsolved: 0
 Mean difficulty: 100.0 s
-Mean solution age: 17429 d
+Mean solution age: 17430 d
 Oldest solution: never
 ''')
         self.ensureInputDataMakesStats(inputData, expectedStats)
@@ -353,6 +432,19 @@ Oldest solution: never
         DoRunQuiz([])
         self.assertEqual("1505100000", g.gQData[9])
 
+    def test_MungeData(self):
+        expected = "IQS"
+
+        # reset global data
+        self.ginitialize()
+
+        # load starting sane data from .qz file
+        shutil.copyfile('mystuff.qz.bkp', 'mystuff.qz')
+        DoRunQuiz([])
+
+
+        MungeData()
+        #self.assertEqual("1505100000", g.gQData[9])
 
 if __name__ == "__main__":
     #import syssys.argv = ['', 'Test.testName']

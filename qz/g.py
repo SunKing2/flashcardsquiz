@@ -11,3 +11,9 @@ gQCorrect = 0
 gTotalTime = 0
 
 gQByAge = []
+
+
+# these added after save works      
+gQCount2 = 0
+gQByRating = []
+gRatingTree = []
