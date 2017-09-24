@@ -1,8 +1,0 @@
-use strict;
-use warnings;
-my @arr;
-$#arr = 49;
-
-foreach my $x (@arr) {
-  print $x
-}
