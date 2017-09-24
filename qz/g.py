@@ -17,3 +17,6 @@ gQByAge = []
 gQCount2 = 0
 gQByRating = []
 gRatingTree = []
+
+# after MungeData
+gWhenAsked = []

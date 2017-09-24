@@ -17,6 +17,148 @@ def myfprintf(myfile, sformat, *args):
     myfile.write(sformat % args)
 # ============================= end   lvb created procedures =======================
 
+# rc = AskHardest() - ask the currently hardest-rated question
+#   returns
+#     0 if question was asked successfully
+#     1 if no question could be found
+#     2 if user has requested end of quiz
+def AskHardest():
+    rating = len(g.gQByRating)
+    while (rating >= 0):
+        if not len(g.gQByRating[rating]): continue
+        for q in " ".split(g.gQByRating[rating]):
+            if not prompt.qord - g.gWhenAsked[q] >= config.mri: continue
+            result = AskQ(q)
+            if (result == 0): return 0 # asked
+            if (result == 1): return 2 # EOF
+            # if (result == 2) { continue; } # did not match pattern
+
+        rating-=1
+    return 1
+
+# rc = AskOldest() - ask the currently oldest question
+#   returns
+#     0 if question was asked successfully
+#     1 if no question could be found
+#     2 if user has requested end of quiz
+def AskOldest():
+    for q in g.gQByAge:
+        if not prompt.qord - g.gWhenAsked[q] >= config.mri: continue
+        result = AskQ(q)
+        if (result == 0): return 0 # asked
+        if (result == 1): return 2 # EOF
+
+    return 1
+
+def AskQ(q):
+    if q >= g.gQCount: raise ValueError("Oops (%d >= %d)\nAborting" % (q, g.gQCount))
+    if True:
+        qIndex = q * k.fields
+        flags        = g.gQData[qIndex+k.fFlags]
+        answer       = g.gQData[qIndex+k.fAnswer]
+        answer       = answer.lower() if re.match('C', flags) else answer
+        question     = g.gQData[qIndex+k.fQuestion]
+        '''
+        if not(&config.question_filter(question)
+          and &config.answer_filter(answer)):
+            return 2
+        prompt.note  = g.gNotes =~ /^\Qquestion\E\t(.*)/m ? 1 : ''
+        prompt.note  = \
+           "prompt.note\ng.gQData[qIndex+k.fNote]" \
+          if length(prompt.note) \
+          else g.gQData[qIndex+k.fNote]
+        prompt.note =~ s/^\n//
+        prompt.note =~ s/<br>|<p>/\n/g
+        '''
+        prompt.qord += 1
+        prompt.text  = "[%d] %s: " % (prompt.qord, question)
+
+    time = 0
+
+    g.gWhenAsked[q] = prompt.qord
+
+    if re.match('O', flags): # don't care about order
+        hanswer = {}; found = {}
+        count = 0
+        for word in re.split(r'\s+', answer) : hanswer[word] = 1; count+=1;
+        originalCount = count
+        isFirstQ = 1
+        while (count > 0):
+            if not isFirstQ:
+                if found:
+                    print ("Enter another answer, or press return to see them all.")
+                else:
+                    print("Press return to see the correct answer, or try again.")
+            read = ReadLine(time, re.match('C', flags))
+            if not read: 
+                return(1)
+            isFirstQ = 0
+            if not re.match(r'\S', read):
+                return GiveUp(q)
+            for word in re.split(r'\s+', read):
+                if hanswer[word]:
+                    nfound = 0
+                    bfound = word in found
+                    if bfound:
+                        nfound = found[word]
+                    found[word] = nfound + 1
+                    
+                    if(bfound):
+                        print("You have already entered `word'.\n")
+                      
+                    else:
+                        count-=1
+                else:
+                    print("`word' is not correct.\n")  
+                  
+    else: # not in unordered mode
+        read = ReadLine(time, re.match('C', flags))
+        if not read:
+            return 1
+        if not read == answer:
+            return GiveUp(q)
+
+    GotIt(q, time)
+
+
+# rc = AskRandom() - ask a question at random, weighting for difficulty
+#   returns
+#     0 if question was asked successfully
+#     1 if the selected question's timer hasn't yet expired
+#     2 if user has requested end of quiz
+def AskRandom():
+    for i in range(1, 21):
+        rand = random.random(g.gTotalRating)
+        q = 0
+        width = g.gQCount2
+        while (width > 1):
+            width >>= 1
+            mid = q + width
+            if (mid <= g.gQCount and rand >= g.gRatingTree[mid-1]):
+                rand -= g.gRatingTree[mid-1]
+                q = mid
+            }
+
+        if (prompt.qord - g.gWhenAsked[q] >= config.mri):
+            result = AskQ(q)
+            if (result == 0): return 0 # asked
+            if (result == 1): return 2 # EOF
+            # if (result == 2) { continue; } # did not match pattern
+
+
+    return 1
+
+
+# rc = AskReview() - ask a review question, from the recent errors list
+#   returns
+#     0 if question was asked successfully
+#     1 if the selected question's timer hasn't yet expired, or if no errors
+#     2 if user has requested end of quiz
+def AskReview():
+    (#gErrors>=0 and prompt.qord-g.gWhenAsked[g.gErrors[0]] >= config.mri)
+      ? ( (AskQ shift g.gErrors) ? 2 : 0 )
+      : 1
+
 
 # DoListStats - list file stats
 def DoListStats():
@@ -78,6 +220,12 @@ def DoRunQuiz(argv):
     g.gSessionStart = time.time()
     if not argv: argv = glob.glob('*.qz')
     LoadData(argv)
+
+def GiveUp(q):
+    return 0
+
+def GotIt(a,b):
+    return 0
 
 def FormatTime(interval):
     if (interval < 60) : return str(interval) + " s"
@@ -166,6 +314,9 @@ def MungeData ():
 
     # build last-asked list
     g.gWhenAsked = [-config.mri] * g.gQCount
+
+def ReadLine(totaltime, makelc):
+    return
 
 def S():
     printf("\nYou answered %d question%s correctly of %d",\
@@ -275,6 +426,9 @@ class Test(unittest.TestCase):
         g.gQCount2 = 0
         g.gQByRating = []
         g.gRatingTree = [] 
+        
+        # added after MungeData
+        g.gWhenAsked = []
 
     def ensureReadData(self, expected_time="1505179230"):
         expected = "IQS"
