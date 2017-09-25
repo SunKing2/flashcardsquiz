@@ -4,6 +4,20 @@ Reads .qz file, prompts user using data from each line, write .qz file
 import time
 
 
+def mylog(arg1, arg2='', arg3=''):
+    '''
+    Output, using same format as print(), but intended for log stuff
+    '''
+    print(arg1, arg2, arg3)
+
+
+def conout(arg1, arg2='', arg3=''):
+    '''
+    Output, using same format as print(), but intended for console output stuff
+    '''
+    print(arg1, arg2, arg3)
+
+
 class _QuizQuestion():
     def __init__(self, question, answer, rating, age):
         '''
@@ -55,7 +69,7 @@ class _QuizQuestion():
 
 class QList():
     '''
-    A list of quiz questons generated with contents of a file.
+    A list of do_quiz_with_files questons generated with contents of a file.
 
     Each file line contains tab-delimited fields.
 
@@ -98,72 +112,58 @@ class QList():
                 fout.write(str(quest) + '\n')
 
 
-def mylog(arg1, arg2='', arg3=''):
+class Quiz():
     '''
-    Output, using same format as print(), but intended for log stuff
-    '''
-    print(arg1, arg2, arg3)
-
-
-def conout(arg1, arg2='', arg3=''):
-    '''
-    Output, using same format as print(), but intended for console output stuff
-    '''
-    print(arg1, arg2, arg3)
-
-
-def show_questions(questions, log_message):
-    '''
-    Debugging, log all the questions in this object, one per line
-    '''
-    mylog(log_message)
-    for quest in questions:
-        mylog(quest.question, quest.rating, quest.age)
-    mylog('')
-
-
-def do_quiz(questions):
-    '''
-    Using data from questions, prompt user once per question.
-
-    Does not read data or write it.  Data gets modified in questions object.
-    '''
-    mylog('Starting quiz.')
-    for quest in questions:
-        response = input('[%d]%s:' % (1, quest.question))
-        now = int(time.time())
-        if response.lower() == quest.answer.lower():
-            conout('correct')
-            conout(quest)
-            quest.rating = int((1 + 2 * quest.rating) / 3)
-            quest.age = now
-            conout(quest)
-        else:
-            conout('wrong, actual answer is: %s' % quest.answer)
-            quest.rating = 100
-            quest.age = now
-
-    mylog('')
-
-
-def quiz():
-    '''
-    Reads .qz file, prompts user using data from each line, write .qz file
+    Retrieve existing quiz questions, ask all questions, write.
     '''
 
-    # when testing, this creates the same initial .qz file
-    # shutil.copyfile('/home/louie/Documents/prog/workspace2017o2/pythonquiz/louieqz/fiveq.qz.bkp',
-    #                '/home/louie/Documents/prog/workspace2017o2/pythonquiz/louieqz/fiveq.qz')
+    def show_questions(self, questions, log_message):
+        '''
+        Debugging, log all the questions in this object, one per line
+        '''
+        mylog(log_message)
+        for quest in questions:
+            mylog(quest.question, quest.rating, quest.age)
+        mylog('')
 
-    questions = QList()
+    def do_quiz_with_questions(self, questions):
+        '''
+        Using data from questions, prompt user once per question.
 
-    show_questions(questions, 'here they are')
+        Does not read data or write it.  Data gets modified in questions object.
+        '''
+        mylog('Starting do_quiz_with_files.')
+        for quest in questions:
+            response = input('[%d]%s:' % (1, quest.question))
+            now = int(time.time())
+            if response.lower() == quest.answer.lower():
+                conout('correct')
+                conout(quest)
+                quest.rating = int((1 + 2 * quest.rating) / 3)
+                quest.age = now
+                conout(quest)
+            else:
+                conout('wrong, actual answer is: %s' % quest.answer)
+                quest.rating = 100
+                quest.age = now
 
-    do_quiz(questions)
+        mylog('')
 
-    show_questions(questions, 'Showing updated questions.')
+    def do_quiz_with_files(self):
+        '''
+        Reads .qz file, prompts user using data from each line, write .qz file
+        '''
 
-    questions.write()
+        questions = QList()
+
+        self.show_questions(questions, 'here they are')
+
+        self.do_quiz_with_questions(questions)
+
+        self.show_questions(questions, 'Showing updated questions.')
+
+        questions.write()
 
 
-quiz()
+if __name__ == '__main__':
+    Quiz().do_quiz_with_files()
