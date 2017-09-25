@@ -1,19 +1,17 @@
-'''
-Reads .qz file, prompts user using data from each line, write .qz file
-'''
 import time
+#import shutil
 
 
-class _QuizQuestion():
-    def __init__(self, question, answer, rating, age):
+class Q():
+    def __init__(self, *fields):
         '''
         Quiz question.
 
         fields are string
 
-        Q(question, answer, rating, age)
+        Q(question, answer, rating, age, flags, note)
 
-        when reading or writing rating, age, they are stored as int
+        when reading or writing age, flags, they are stored as int
             myq.rating = 22
             myq.age = 1504711252
 
@@ -21,12 +19,14 @@ class _QuizQuestion():
             myint2 = myq.age
 
         '''
-        self.question = question
-        self.answer = answer
-        self.rating = int(rating)
-        self.age = int(age)
-        self.flags = 'CO'
-        self.note = ''
+
+        field_names = 'question', 'answer', 'rating', 'age', 'flags', 'note'
+
+        for field_name, field in zip(field_names, fields):
+            setattr(self, field_name, field)
+
+        self.rating = int(self.rating)
+        self.age = int(self.age)
 
     def __repr__(self):
         '''
@@ -37,8 +37,7 @@ class _QuizQuestion():
         # strip off comma and space
         repr_template = '{}(' + six_fields[:-2] + ')'
         return(repr_template.format(self.__class__.__name__,
-                                    self.question, self.answer, self.rating,
-                                    self.age, self.flags, self.note))
+                                    self.question, self.answer, self.rating, self.age, self.flags, self.note))
 
     def __str__(self):
         '''
@@ -50,7 +49,7 @@ class _QuizQuestion():
         '''
         string_fields = [self.question, self.answer, str(
             self.rating), str(self.age), self.flags, self.note]
-        return '\t'.join(string_fields)
+        return('\t'.join(string_fields))
 
 
 class QList():
@@ -76,9 +75,7 @@ class QList():
         for line in lines_list:
             fields = line.split('\t')
 
-            # the file has 2 more fields in it, that we ignore
-            # this is because the _QuizQuestion() won't take them
-            newq = _QuizQuestion(*(fields[:4]))
+            newq = Q(*fields)
             self._questions.append(newq)
 
     def __len__(self):
@@ -88,68 +85,46 @@ class QList():
         return self._questions[position]
 
     def write(self, file_name='fiveq.qz'):
-        '''
-        Write, as text, a line for each question in this object.
-
-        Fields are written delimited by tabs.
-        '''
         with open(file_name, 'w') as fout:
             for quest in self._questions:
                 fout.write(str(quest) + '\n')
 
 
-def mylog(arg1, arg2='', arg3=''):
-    '''
-    Output, using same format as print(), but intended for log stuff
-    '''
-    print(arg1, arg2, arg3)
+def mylog(s1, s2='', s3=''):
+    print(s1, s2, s3)
 
 
-def conout(arg1, arg2='', arg3=''):
-    '''
-    Output, using same format as print(), but intended for console output stuff
-    '''
-    print(arg1, arg2, arg3)
+def conout(s1, s2='', s3=''):
+    print(s1, s2, s3)
 
 
 def show_questions(questions, log_message):
-    '''
-    Debugging, log all the questions in this object, one per line
-    '''
     mylog(log_message)
-    for quest in questions:
-        mylog(quest.question, quest.rating, quest.age)
+    for q in questions:
+        mylog(q.question, q.rating, q.age)
     mylog('')
 
 
 def do_quiz(questions):
-    '''
-    Using data from questions, prompt user once per question.
-
-    Does not read data or write it.  Data gets modified in questions object.
-    '''
     mylog('Starting quiz.')
-    for quest in questions:
-        response = input('[%d]%s:' % (1, quest.question))
+    for q in questions:
+        response = input('[%d]%s:' % (1, q.question))
         now = int(time.time())
-        if response.lower() == quest.answer.lower():
+        if (response.lower() == q.answer.lower()):
             conout('correct')
-            conout(quest)
-            quest.rating = int((1 + 2 * quest.rating) / 3)
-            quest.age = now
-            conout(quest)
+            conout(q)
+            q.rating = int((1 + 2 * q.rating) / 3)
+            q.age = now
+            conout(q)
         else:
-            conout('wrong, actual answer is: %s' % quest.answer)
-            quest.rating = 100
-            quest.age = now
+            conout('wrong, actual answer is: %s' % q.answer)
+            q.rating = 100
+            q.age = now
 
     mylog('')
 
 
 def quiz():
-    '''
-    Reads .qz file, prompts user using data from each line, write .qz file
-    '''
 
     # when testing, this creates the same initial .qz file
     # shutil.copyfile('/home/louie/Documents/prog/workspace2017o2/pythonquiz/louieqz/fiveq.qz.bkp',
