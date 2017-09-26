@@ -1,3 +1,6 @@
 {
-  "flashcardsquiz/test_question_list.py::test_ctr": true
+  "flashcardsquiz/test_question_list.py::test_ctr": true,
+  "flashcardsquiz/test_question_list.py::test_ctr_2": true,
+  "flashcardsquiz/test_question_list.py::test_read_write": true,
+  "flashcardsquiz/test_question_list.py::test_read_write_extra_fields": true
 }
