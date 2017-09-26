@@ -38,7 +38,7 @@ EGHU 67 1503419418
 EEGH 45 1503750431
 AEINOST 24 1504796064
   
-Starting do_quiz_with_files.  
+Starting quiz.  
 [1]HOP:wrong, actual answer is: HOP PHO POH  
 [1]BLO:wrong, actual answer is: LOB  
 [1]EGHU:wrong, actual answer is: HUGE  
@@ -67,7 +67,7 @@ EGHU 67 1503419418
 EEGH 45 1503750431
 AEINOST 24 1504796064
   
-Starting do_quiz_with_files.  
+Starting quiz.  
 [1]HOP:correct  
 HOP	HOP PHO POH	71	1504097032	CO	  
 HOP	HOP PHO POH	47	1506387777	CO	  

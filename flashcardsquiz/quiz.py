@@ -69,7 +69,7 @@ class _QuizQuestion():
 
 class QList():
     '''
-    A list of do_quiz_with_files questons generated with contents of a file.
+    A list of quiz questions generated with contents of a file.
 
     Each file line contains tab-delimited fields.
 
@@ -132,7 +132,7 @@ class Quiz():
 
         Does not read data or write it.  Data gets modified in questions object.
         '''
-        mylog('Starting do_quiz_with_files.')
+        mylog('Starting quiz.')
         for quest in questions:
             response = input('[%d]%s:' % (1, quest.question))
             now = int(time.time())
